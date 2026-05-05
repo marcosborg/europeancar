@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand-navy: #002B6B;
+    --color-brand-deep: #001E4A;
+    --color-brand-gold: #F7B500;
+    --color-brand-gray: #555555;
+    --color-brand-light: #F5F7FA;
+}
+
+@layer base {
+    input,
+    select,
+    textarea {
+        width: 100%;
+    }
+}
