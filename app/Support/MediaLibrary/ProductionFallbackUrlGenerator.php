@@ -13,6 +13,10 @@ class ProductionFallbackUrlGenerator extends DefaultUrlGenerator
     {
         $url = parent::getUrl();
 
+        if ($this->shouldUseMediaController()) {
+            return $this->mediaControllerUrl();
+        }
+
         if ($this->localFileExists()) {
             return $url;
         }
@@ -29,6 +33,28 @@ class ProductionFallbackUrlGenerator extends DefaultUrlGenerator
         }
     }
 
+    private function shouldUseMediaController(): bool
+    {
+        return $this->media !== null
+            && $this->getDiskName() === 'local'
+            && Str::startsWith($this->media->mime_type, 'image/')
+            && $this->localFileExists();
+    }
+
+    private function mediaControllerUrl(?string $baseUrl = null): string
+    {
+        $path = route('media.show', array_filter([
+            'media' => $this->media?->getKey(),
+            'conversion' => $this->conversion?->getName(),
+        ]), false);
+
+        if ($baseUrl === null) {
+            return $path;
+        }
+
+        return rtrim($baseUrl, '/').$path;
+    }
+
     private function fallbackUrl(string $url): ?string
     {
         $baseUrl = rtrim((string) config('media-library.fallback_url'), '/');
@@ -37,12 +63,6 @@ class ProductionFallbackUrlGenerator extends DefaultUrlGenerator
             return null;
         }
 
-        $path = 'media-library/'.$this->media->getKey();
-
-        if ($this->conversion !== null) {
-            $path .= '/'.$this->conversion->getName();
-        }
-
-        return $baseUrl.'/'.$path;
+        return $this->mediaControllerUrl($baseUrl);
     }
 }
