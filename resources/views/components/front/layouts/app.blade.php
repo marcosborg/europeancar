@@ -28,6 +28,7 @@
     <meta name="twitter:card" content="summary_large_image">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('styles')
 </head>
 <body class="bg-[#FFFFFF] text-[#1f2937] antialiased">
     <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -70,5 +71,6 @@
     </footer>
     <livewire:cookie-banner :locale="$locale" />
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

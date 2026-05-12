@@ -1,9 +1,142 @@
+@php
+    $galleryMedia = $vehicle->getMedia('vehicle_main')
+        ->merge($vehicle->getMedia('vehicle_gallery'))
+        ->values();
+@endphp
+
+@if($galleryMedia->isNotEmpty())
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+        <style>
+            .vehicle-gallery {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .vehicle-gallery .swiper {
+                width: 100%;
+            }
+
+            .vehicle-gallery-main {
+                aspect-ratio: 4 / 3;
+                background: #F5F7FA;
+                border-radius: 1rem;
+                max-height: 620px;
+                overflow: hidden;
+            }
+
+            .vehicle-gallery-main .swiper-slide,
+            .vehicle-gallery-thumbs .swiper-slide {
+                background-position: center;
+                background-size: cover;
+            }
+
+            .vehicle-gallery-main .swiper-slide img,
+            .vehicle-gallery-thumbs .swiper-slide img {
+                display: block;
+                height: 100%;
+                object-fit: cover;
+                width: 100%;
+            }
+
+            .vehicle-gallery-thumbs {
+                box-sizing: border-box;
+                height: 96px;
+                margin-top: 1rem;
+            }
+
+            .vehicle-gallery-thumbs .swiper-slide {
+                border: 1px solid #e2e8f0;
+                border-radius: .5rem;
+                cursor: pointer;
+                height: 100%;
+                opacity: .45;
+                overflow: hidden;
+                transition: border-color .2s ease, opacity .2s ease;
+            }
+
+            .vehicle-gallery-thumbs .swiper-slide-thumb-active {
+                border-color: #F7B500;
+                opacity: 1;
+            }
+
+            .vehicle-gallery .swiper-button-next,
+            .vehicle-gallery .swiper-button-prev {
+                --swiper-navigation-color: #002B6B;
+                --swiper-navigation-size: 1.25rem;
+                background: rgba(255, 255, 255, .92);
+                border-radius: 999px;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, .14);
+                height: 2.5rem;
+                width: 2.5rem;
+            }
+        </style>
+    @endpush
+
+    @if($galleryMedia->count() > 1)
+        @push('scripts')
+            <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const thumbs = new Swiper('.vehicle-gallery-thumbs', {
+                        spaceBetween: 10,
+                        slidesPerView: 4,
+                        freeMode: true,
+                        watchSlidesProgress: true,
+                        breakpoints: {
+                            0: { slidesPerView: 3 },
+                            640: { slidesPerView: 4 },
+                            1024: { slidesPerView: 5 },
+                        },
+                    });
+
+                    new Swiper('.vehicle-gallery-main', {
+                        spaceBetween: 10,
+                        navigation: {
+                            nextEl: '.vehicle-gallery-next',
+                            prevEl: '.vehicle-gallery-prev',
+                        },
+                        thumbs: {
+                            swiper: thumbs,
+                        },
+                    });
+                });
+            </script>
+        @endpush
+    @endif
+@endif
+
 <x-front.layouts.app :locale="$locale" :title="$translation->meta_title ?: $translation->title" :description="$translation->meta_description" :image="$vehicle->mainImageUrl()">
     <section class="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.2fr_.8fr]">
-        <div>
-            <div class="overflow-hidden rounded-2xl bg-[#F5F7FA]">
-                @if($vehicle->mainImageUrl())
-                    <img src="{{ $vehicle->mainImageUrl() }}" alt="{{ $translation->title }}" class="h-full max-h-[620px] w-full object-cover">
+        <div class="vehicle-gallery">
+            <div>
+                @if($galleryMedia->isNotEmpty())
+                    <div class="swiper vehicle-gallery-main">
+                        <div class="swiper-wrapper">
+                            @foreach($galleryMedia as $media)
+                                <div class="swiper-slide">
+                                    <img src="{{ $media->getUrl() }}" alt="{{ $translation->title }} {{ $loop->iteration }}">
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if($galleryMedia->count() > 1)
+                            <div class="swiper-button-next vehicle-gallery-next"></div>
+                            <div class="swiper-button-prev vehicle-gallery-prev"></div>
+                        @endif
+                    </div>
+
+                    @if($galleryMedia->count() > 1)
+                        <div class="swiper vehicle-gallery-thumbs">
+                            <div class="swiper-wrapper">
+                                @foreach($galleryMedia as $media)
+                                    <div class="swiper-slide">
+                                        <img src="{{ $media->getAvailableUrl(['card']) }}" alt="{{ $translation->title }} {{ $loop->iteration }}">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 @else
                     <div class="grid aspect-video place-items-center text-[#002B6B]">European Car</div>
                 @endif
