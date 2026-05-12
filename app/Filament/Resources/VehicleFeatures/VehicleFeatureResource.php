@@ -18,7 +18,7 @@ class VehicleFeatureResource extends Resource
 {
     protected static ?string $model = VehicleFeature::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrench;
 
     public static function form(Schema $schema): Schema
     {

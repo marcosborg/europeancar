@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use Database\Factories\VehicleFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,7 +17,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Vehicle extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\VehicleFactory> */
+    /** @use HasFactory<VehicleFactory> */
     use HasFactory, InteractsWithMedia, SoftDeletes;
 
     protected $guarded = [];
@@ -43,11 +44,11 @@ class Vehicle extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('vehicle_main')->singleFile();
-        $this->addMediaCollection('vehicle_gallery');
-        $this->addMediaCollection('vehicle_social');
-        $this->addMediaCollection('vehicle_documents');
-        $this->addMediaCollection('vehicle_technical_sheet')->singleFile();
+        $this->addMediaCollection('vehicle_main')->useDisk('public')->singleFile();
+        $this->addMediaCollection('vehicle_gallery')->useDisk('public');
+        $this->addMediaCollection('vehicle_social')->useDisk('public');
+        $this->addMediaCollection('vehicle_documents')->useDisk('local');
+        $this->addMediaCollection('vehicle_technical_sheet')->useDisk('local')->singleFile();
     }
 
     public function registerMediaConversions(?Media $media = null): void

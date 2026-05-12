@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\SiteSettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -9,7 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class SiteSetting extends Model implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\SiteSettingFactory> */
+    /** @use HasFactory<SiteSettingFactory> */
     use HasFactory, InteractsWithMedia;
 
     protected $guarded = [];
@@ -26,9 +27,9 @@ class SiteSetting extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('site_logo')->singleFile();
-        $this->addMediaCollection('site_favicon')->singleFile();
-        $this->addMediaCollection('site_default_seo')->singleFile();
+        $this->addMediaCollection('site_logo')->useDisk('public')->singleFile();
+        $this->addMediaCollection('site_favicon')->useDisk('public')->singleFile();
+        $this->addMediaCollection('site_default_seo')->useDisk('public')->singleFile();
     }
 
     public static function current(): self

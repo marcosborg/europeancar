@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\Frontend\SeoController;
 use App\Http\Controllers\Frontend\VehicleController;
+use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/pt');
@@ -14,6 +15,10 @@ Route::redirect('/', '/pt');
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::post('/cookies/consent', [CookieConsentController::class, 'store'])->name('cookies.consent');
+Route::get('/media-library/{media}/{conversion?}', [MediaController::class, 'show'])
+    ->whereNumber('media')
+    ->where('conversion', '[A-Za-z0-9_-]+')
+    ->name('media.show');
 
 Route::middleware('auth')->prefix('admin/social')->group(function (): void {
     Route::get('/vehicles.csv', [SocialExportController::class, 'csv'])->name('admin.social-csv');

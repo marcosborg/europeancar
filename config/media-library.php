@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\MediaLibrary\ProductionFallbackUrlGenerator;
 use Spatie\ImageOptimizer\Optimizers\Avifenc;
 use Spatie\ImageOptimizer\Optimizers\Cwebp;
 use Spatie\ImageOptimizer\Optimizers\Gifsicle;
@@ -23,7 +24,6 @@ use Spatie\MediaLibrary\ResponsiveImages\WidthCalculator\FileSizeOptimizedWidthC
 use Spatie\MediaLibrary\Support\FileNamer\DefaultFileNamer;
 use Spatie\MediaLibrary\Support\FileRemover\DefaultFileRemover;
 use Spatie\MediaLibrary\Support\PathGenerator\DefaultPathGenerator;
-use Spatie\MediaLibrary\Support\UrlGenerator\DefaultUrlGenerator;
 use Spatie\MediaLibraryPro\Models\TemporaryUpload;
 
 return [
@@ -127,7 +127,13 @@ return [
      * When urls to files get generated, this class will be called. Use the default
      * if your files are stored locally above the site root or on s3.
      */
-    'url_generator' => DefaultUrlGenerator::class,
+    'url_generator' => ProductionFallbackUrlGenerator::class,
+
+    /*
+     * Optional remote base URL used when the database references media files
+     * that are not present on the current disk, e.g. a sandbox synced from production.
+     */
+    'fallback_url' => env('MEDIA_FALLBACK_URL'),
 
     /*
      * Moves media on updating to keep path consistent. Enable it only with a custom
