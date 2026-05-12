@@ -31,14 +31,9 @@
 </head>
 <body class="bg-[#FFFFFF] text-[#1f2937] antialiased">
     <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4">
-            <a href="{{ url('/'.$locale) }}" class="flex items-center gap-3">
-                @if($settings->getFirstMediaUrl('site_logo'))
-                    <img src="{{ $settings->getFirstMediaUrl('site_logo') }}" class="h-11 w-auto" alt="{{ $siteTitle }}">
-                @else
-                    <span class="grid h-11 w-11 place-items-center rounded-lg bg-[#002B6B] text-sm font-black text-[#F7B500]">EC</span>
-                    <span class="leading-tight"><strong class="block text-sm uppercase tracking-wide text-[#002B6B]">European Car</strong><span class="text-xs text-[#555555]">{{ $settings->slogan }}</span></span>
-                @endif
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5">
+            <a href="{{ url('/'.$locale) }}" class="flex items-center gap-3 py-2">
+                <img src="{{ asset('assets/img/logo.png') }}" class="block h-auto max-w-[45vw]" style="width: 220px;" alt="{{ $siteTitle }}">
             </a>
             <nav class="hidden items-center gap-6 text-sm font-semibold text-[#002B6B] md:flex">
                 <a href="{{ $locale === 'en' ? route('vehicles.buy.en', ['locale' => 'en']) : route('vehicles.buy.pt', ['locale' => 'pt']) }}">{{ $locale === 'en' ? 'Buy' : 'Comprar' }}</a>
