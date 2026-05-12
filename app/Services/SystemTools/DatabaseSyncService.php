@@ -12,14 +12,35 @@ use Throwable;
 
 class DatabaseSyncService
 {
-    public function run(SystemToolRun $run): void
+    /**
+     * Tables that must survive a sandbox refresh because they keep the running job,
+     * active sessions, cache locks, and the execution log itself alive.
+     *
+     * @var array<int, string>
+     */
+    private array $preservedTables = [
+        'cache',
+        'cache_locks',
+        'failed_jobs',
+        'job_batches',
+        'jobs',
+        'sessions',
+        'system_tool_runs',
+    ];
+
+    public function ensureReadyToRun(): void
     {
-        if (app(EnvironmentSwitcher::class)->isProduction()) {
+        if (app()->isProduction() || app(EnvironmentSwitcher::class)->isProduction()) {
             throw new RuntimeException('Database sync is blocked while the application environment is production.');
         }
 
         $this->assertConnectionsAreConfigured();
         $this->assertConnectionsAreDifferent();
+    }
+
+    public function run(SystemToolRun $run): void
+    {
+        $this->ensureReadyToRun();
 
         $startedAt = hrtime(true);
 
@@ -39,14 +60,17 @@ class DatabaseSyncService
 
             $sandboxPdo->exec('SET FOREIGN_KEY_CHECKS=0');
 
-            $sandboxTables = $this->tableNames($sandboxPdo);
+            $sandboxTables = $this->syncableTableNames($this->tableNames($sandboxPdo));
 
             foreach ($sandboxTables as $table) {
                 $sandboxPdo->exec('DROP TABLE IF EXISTS '.$this->quoteIdentifier($table));
             }
 
-            $productionTables = $this->tableNames($productionPdo);
+            $productionTables = $this->syncableTableNames($this->tableNames($productionPdo));
+            $preservedTables = implode(', ', $this->preservedTables);
+
             $output[] = 'Dropped '.count($sandboxTables).' sandbox tables.';
+            $output[] = "Preserved technical tables: {$preservedTables}.";
 
             foreach ($productionTables as $table) {
                 $createStatement = $this->createTableStatement($productionPdo, $table);
@@ -148,6 +172,18 @@ class DatabaseSyncService
     private function quoteIdentifier(string $identifier): string
     {
         return '`'.str_replace('`', '``', $identifier).'`';
+    }
+
+    /**
+     * @param  array<int, string>  $tables
+     * @return array<int, string>
+     */
+    private function syncableTableNames(array $tables): array
+    {
+        return array_values(array_filter(
+            $tables,
+            fn (string $table): bool => ! in_array($table, $this->preservedTables, true),
+        ));
     }
 
     private function assertConnectionsAreConfigured(): void

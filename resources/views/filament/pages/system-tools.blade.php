@@ -246,7 +246,7 @@
         </div>
 
         <x-filament::section heading="Execution Log">
-            <div style="overflow-x: auto;">
+            <div wire:poll.visible.5s style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse; font-size: .875rem;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--gray-200, #e5e7eb); text-align: left;">

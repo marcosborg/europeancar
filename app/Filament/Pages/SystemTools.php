@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use App\Jobs\SyncProductionDatabaseToSandbox;
 use App\Models\SystemToolRun;
+use App\Services\SystemTools\DatabaseSyncService;
 use App\Services\SystemTools\EnvironmentSwitcher;
 use App\Services\SystemTools\SystemToolRunner;
 use BackedEnum;
@@ -73,13 +73,15 @@ class SystemTools extends Page
     {
         abort_unless(static::canAccess(), 403);
 
-        if (app(EnvironmentSwitcher::class)->isProduction()) {
+        try {
+            app(DatabaseSyncService::class)->ensureReadyToRun();
+        } catch (\Throwable $exception) {
             SystemToolRun::query()->create([
                 'user_id' => auth()->id(),
                 'tool' => 'database',
                 'action' => 'sync-production-to-sandbox',
                 'status' => 'failed',
-                'error' => 'Database sync is blocked while the application environment is production.',
+                'error' => mb_substr($exception->getMessage(), 0, 10000),
                 'started_at' => now(),
                 'finished_at' => now(),
             ]);
@@ -87,7 +89,7 @@ class SystemTools extends Page
             Notification::make()
                 ->danger()
                 ->title('Database sync blocked')
-                ->body('Production database sync can only run from SANDBOX.')
+                ->body($exception->getMessage())
                 ->send();
 
             return;
@@ -100,13 +102,11 @@ class SystemTools extends Page
             'status' => 'pending',
         ]);
 
-        SyncProductionDatabaseToSandbox::dispatch($run->id);
+        app(DatabaseSyncService::class)->run($run);
 
-        Notification::make()
-            ->success()
-            ->title('Database sync started')
-            ->body('The sync job has been queued. Check the execution log for progress.')
-            ->send();
+        $run->refresh();
+
+        $this->notifyFromRun($run, 'Database sync completed.');
     }
 
     public function recentRuns(): Collection
