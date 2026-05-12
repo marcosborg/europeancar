@@ -14,7 +14,7 @@ class DatabaseSyncService
 {
     public function run(SystemToolRun $run): void
     {
-        if (app()->isProduction()) {
+        if (app(EnvironmentSwitcher::class)->isProduction()) {
             throw new RuntimeException('Database sync is blocked while the application environment is production.');
         }
 

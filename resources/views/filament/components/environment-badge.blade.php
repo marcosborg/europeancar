@@ -1,5 +1,5 @@
 @php
-    $isProduction = app()->isProduction();
+    $isProduction = app(\App\Services\SystemTools\EnvironmentSwitcher::class)->isProduction();
 @endphp
 
 <div style="display: flex; align-items: center; padding-inline: .75rem;">

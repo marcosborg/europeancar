@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\SocialExportController;
+use App\Http\Controllers\Admin\SystemEnvironmentController;
 use App\Http\Controllers\Frontend\CookieConsentController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController;
@@ -18,6 +19,14 @@ Route::middleware('auth')->prefix('admin/social')->group(function (): void {
     Route::get('/vehicles.csv', [SocialExportController::class, 'csv'])->name('admin.social-csv');
     Route::get('/{vehicle}/{locale?}/{format?}', [SocialExportController::class, 'preview'])->name('admin.social-preview');
 });
+
+Route::post('/admin/system-tools/environment/{environment}', SystemEnvironmentController::class)
+    ->middleware('auth')
+    ->whereIn('environment', ['production', 'sandbox'])
+    ->name('admin.system-tools.environment');
+
+Route::get('/admin/system-tools/environment/{environment}', fn () => redirect('/admin/login'))
+    ->whereIn('environment', ['production', 'sandbox']);
 
 Route::prefix('{locale}')
     ->whereIn('locale', ['pt', 'en'])

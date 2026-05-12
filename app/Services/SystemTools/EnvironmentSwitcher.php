@@ -24,7 +24,17 @@ class EnvironmentSwitcher
 
     public function currentLabel(): string
     {
-        return app()->isProduction() ? 'PRODUCTION' : 'SANDBOX';
+        return $this->isProduction() ? 'PRODUCTION' : 'SANDBOX';
+    }
+
+    public function isProduction(): bool
+    {
+        return $this->currentEnvironment() === 'production';
+    }
+
+    public function currentEnvironment(): string
+    {
+        return $this->appEnvironmentFromFile(base_path('.env'));
     }
 
     public function switchTo(string $environment, ?int $userId = null): SystemToolRun
@@ -50,6 +60,9 @@ class EnvironmentSwitcher
                 throw new RuntimeException("Environment file does not exist: {$source}");
             }
 
+            $appEnvironment = $this->appEnvironmentFromFile($source);
+            $this->ensureExpectedEnvironment($environment, $appEnvironment, $source);
+
             $target = base_path('.env');
 
             if (File::exists($target)) {
@@ -63,6 +76,9 @@ class EnvironmentSwitcher
 
             Artisan::call('cache:clear');
             $cacheOutput = Artisan::output();
+
+            config(['app.env' => $appEnvironment]);
+            app()->detectEnvironment(fn (): string => $appEnvironment);
 
             $run->update([
                 'status' => 'succeeded',
@@ -86,5 +102,27 @@ class EnvironmentSwitcher
     private function durationInMilliseconds(int $startedAt): int
     {
         return (int) round((hrtime(true) - $startedAt) / 1_000_000);
+    }
+
+    private function appEnvironmentFromFile(string $path): string
+    {
+        $contents = File::get($path);
+
+        if (! preg_match('/^APP_ENV=(.*)$/m', $contents, $matches)) {
+            throw new RuntimeException("Environment file is missing APP_ENV: {$path}");
+        }
+
+        return trim($matches[1], " \t\n\r\0\x0B\"'");
+    }
+
+    private function ensureExpectedEnvironment(string $targetEnvironment, string $appEnvironment, string $path): void
+    {
+        if ($targetEnvironment === 'production' && $appEnvironment !== 'production') {
+            throw new RuntimeException("Production environment file must define APP_ENV=production: {$path}");
+        }
+
+        if ($targetEnvironment === 'sandbox' && $appEnvironment === 'production') {
+            throw new RuntimeException("Sandbox environment file cannot define APP_ENV=production: {$path}");
+        }
     }
 }

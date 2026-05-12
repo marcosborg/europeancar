@@ -7,6 +7,7 @@ use App\Models\SystemToolRun;
 use App\Services\SystemTools\EnvironmentSwitcher;
 use App\Services\SystemTools\SystemToolRunner;
 use BackedEnum;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -62,13 +63,17 @@ class SystemTools extends Page
         $run = app(EnvironmentSwitcher::class)->switchTo($environment, auth()->id());
 
         $this->notifyFromRun($run, 'Environment switched.');
+
+        if ($run->status === 'succeeded') {
+            $this->redirect(Filament::getLoginUrl() ?? '/admin/login', navigate: false);
+        }
     }
 
     public function syncDatabase(): void
     {
         abort_unless(static::canAccess(), 403);
 
-        if (app()->isProduction()) {
+        if (app(EnvironmentSwitcher::class)->isProduction()) {
             SystemToolRun::query()->create([
                 'user_id' => auth()->id(),
                 'tool' => 'database',
