@@ -1,111 +1,123 @@
 <x-filament-panels::page>
-    <div class="grid gap-6 lg:grid-cols-3">
-        <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 lg:col-span-2">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h2 class="text-base font-semibold text-gray-950 dark:text-white">Laravel Tools</h2>
-                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Run whitelisted maintenance commands from inside the panel.</p>
-                </div>
-            </div>
-
-            <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                @foreach($this->tools() as $key => $tool)
-                    <button
-                        type="button"
-                        wire:click="runTool('{{ $key }}')"
-                        @if($tool['destructive']) onclick="return confirm('Run {{ $tool['label'] }}? This can change the application state.')" @endif
-                        class="rounded-lg border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-800 transition hover:border-amber-400 hover:bg-amber-50 dark:border-gray-700 dark:text-gray-100 dark:hover:border-amber-500 dark:hover:bg-amber-500/10"
-                    >
-                        {{ $tool['label'] }}
-                    </button>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Environment Manager</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Switch the active .env file and clear cached configuration.</p>
-
-            <div class="mt-5">
-                <span @class([
-                    'inline-flex rounded-full px-3 py-1 text-xs font-bold ring-1',
-                    'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30' => $this->environmentLabel() === 'PRODUCTION',
-                    'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30' => $this->environmentLabel() !== 'PRODUCTION',
-                ])>
-                    {{ $this->environmentLabel() }}
-                </span>
-            </div>
-
-            <div class="mt-5 grid gap-3">
-                <button
-                    type="button"
-                    wire:click="switchEnvironment('sandbox')"
-                    onclick="return confirm('Switch to SANDBOX by copying .env.local to .env?')"
-                    class="rounded-lg border border-emerald-200 px-4 py-3 text-left text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
-                >
-                    Switch to SANDBOX
-                </button>
-                <button
-                    type="button"
-                    wire:click="switchEnvironment('production')"
-                    onclick="return confirm('Switch to PRODUCTION by copying .env.production to .env?')"
-                    class="rounded-lg border border-red-200 px-4 py-3 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-500/10"
-                >
-                    Switch to PRODUCTION
-                </button>
-            </div>
-        </section>
-
-        <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Database Sync</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Copy production MySQL schema and rows into the configured sandbox database.</p>
-
-            <button
-                type="button"
-                wire:click="syncDatabase"
-                onclick="return confirm('This will replace the configured SANDBOX database with production data. Continue?')"
-                @disabled($this->environmentLabel() === 'PRODUCTION')
-                class="mt-5 w-full rounded-lg border border-red-200 px-4 py-3 text-left text-sm font-semibold text-red-700 transition enabled:hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-500/30 dark:text-red-300 dark:enabled:hover:bg-red-500/10"
+    <div style="display: grid; gap: 1.5rem;">
+        <div style="display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <x-filament::section
+                heading="Laravel Tools"
+                description="Run whitelisted maintenance commands from inside the panel."
             >
-                Sync Production Database to Sandbox
-            </button>
-        </section>
+                <div style="display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                    @foreach($this->tools() as $key => $tool)
+                        @if($tool['destructive'])
+                            <x-filament::button
+                                type="button"
+                                color="danger"
+                                wire:click="runTool('{{ $key }}')"
+                                onclick="return confirm('Run {{ $tool['label'] }}? This can change the application state.')"
+                            >
+                                {{ $tool['label'] }}
+                            </x-filament::button>
+                        @else
+                            <x-filament::button
+                                type="button"
+                                color="primary"
+                                outlined
+                                wire:click="runTool('{{ $key }}')"
+                            >
+                                {{ $tool['label'] }}
+                            </x-filament::button>
+                        @endif
+                    @endforeach
+                </div>
+            </x-filament::section>
 
-        <section class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 lg:col-span-2">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white">Execution Log</h2>
-            <div class="mt-5 overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th class="py-2 pr-4">Action</th>
-                            <th class="py-2 pr-4">Status</th>
-                            <th class="py-2 pr-4">User</th>
-                            <th class="py-2 pr-4">Finished</th>
+            <x-filament::section
+                heading="Environment Manager"
+                description="Switch the active .env file and clear cached configuration."
+            >
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <x-filament::badge :color="$this->environmentLabel() === 'PRODUCTION' ? 'danger' : 'success'">
+                            {{ $this->environmentLabel() }}
+                        </x-filament::badge>
+                    </div>
+
+                    <div style="display: grid; gap: .75rem;">
+                        <x-filament::button
+                            type="button"
+                            color="success"
+                            outlined
+                            wire:click="switchEnvironment('sandbox')"
+                            onclick="return confirm('Switch to SANDBOX by copying .env.local to .env?')"
+                        >
+                            Switch to SANDBOX
+                        </x-filament::button>
+
+                        <x-filament::button
+                            type="button"
+                            color="danger"
+                            outlined
+                            wire:click="switchEnvironment('production')"
+                            onclick="return confirm('Switch to PRODUCTION by copying .env.production to .env?')"
+                        >
+                            Switch to PRODUCTION
+                        </x-filament::button>
+                    </div>
+                </div>
+            </x-filament::section>
+
+            <x-filament::section
+                heading="Database Sync"
+                description="Copy production MySQL schema and rows into the configured sandbox database."
+            >
+                <x-filament::button
+                    type="button"
+                    color="danger"
+                    :disabled="$this->environmentLabel() === 'PRODUCTION'"
+                    wire:click="syncDatabase"
+                    onclick="return confirm('This will replace the configured SANDBOX database with production data. Continue?')"
+                >
+                    Sync Production Database to Sandbox
+                </x-filament::button>
+            </x-filament::section>
+        </div>
+
+        <x-filament::section heading="Execution Log">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: .875rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--gray-200, #e5e7eb); text-align: left;">
+                            <th style="padding: .625rem .75rem .625rem 0;">Action</th>
+                            <th style="padding: .625rem .75rem;">Status</th>
+                            <th style="padding: .625rem .75rem;">User</th>
+                            <th style="padding: .625rem 0 .625rem .75rem;">Finished</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tbody>
                         @forelse($this->recentRuns() as $run)
-                            <tr>
-                                <td class="py-3 pr-4 font-medium text-gray-900 dark:text-gray-100">{{ $run->action }}</td>
-                                <td class="py-3 pr-4">
-                                    <span @class([
-                                        'rounded-full px-2 py-1 text-xs font-semibold',
-                                        'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300' => $run->status === 'succeeded',
-                                        'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300' => $run->status === 'failed',
-                                        'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300' => in_array($run->status, ['pending', 'running'], true),
-                                    ])>{{ $run->status }}</span>
+                            <tr style="border-bottom: 1px solid var(--gray-100, #f3f4f6);">
+                                <td style="padding: .75rem .75rem .75rem 0; font-weight: 600;">{{ $run->action }}</td>
+                                <td style="padding: .75rem;">
+                                    <x-filament::badge
+                                        :color="match ($run->status) {
+                                            'succeeded' => 'success',
+                                            'failed' => 'danger',
+                                            default => 'warning',
+                                        }"
+                                    >
+                                        {{ $run->status }}
+                                    </x-filament::badge>
                                 </td>
-                                <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $run->user?->name ?? 'System' }}</td>
-                                <td class="py-3 pr-4 text-gray-600 dark:text-gray-400">{{ $run->finished_at?->diffForHumans() ?? '-' }}</td>
+                                <td style="padding: .75rem;">{{ $run->user?->name ?? 'System' }}</td>
+                                <td style="padding: .75rem 0 .75rem .75rem;">{{ $run->finished_at?->diffForHumans() ?? '-' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="py-6 text-center text-gray-500 dark:text-gray-400">No system tool runs yet.</td>
+                                <td colspan="4" style="padding: 1.5rem; text-align: center;">No system tool runs yet.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-        </section>
+        </x-filament::section>
     </div>
 </x-filament-panels::page>
