@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Vehicles\Schemas;
 
+use App\Models\Brand;
+use App\Models\CarModel;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -14,6 +16,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -49,8 +53,73 @@ class VehicleForm
                     ]),
                     Tab::make('Identificação')->schema([
                         Grid::make(3)->schema([
-                            Select::make('brand_id')->relationship('brand', 'name')->searchable()->preload()->required(),
-                            Select::make('car_model_id')->relationship('carModel', 'name')->searchable()->preload(),
+                            Select::make('brand_id')
+                                ->label('Marca')
+                                ->relationship('brand', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->live()
+                                ->required()
+                                ->afterStateUpdated(fn (Set $set) => $set('car_model_id', null))
+                                ->createOptionForm([
+                                    TextInput::make('name')
+                                        ->label('Nome')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique(Brand::class, 'name')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug((string) $state))),
+                                    TextInput::make('slug')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->unique(Brand::class, 'slug'),
+                                    TextInput::make('sort_order')
+                                        ->label('Ordem')
+                                        ->numeric()
+                                        ->default(0),
+                                    Toggle::make('is_active')
+                                        ->label('Ativa')
+                                        ->default(true),
+                                ]),
+                            Select::make('car_model_id')
+                                ->label('Modelo')
+                                ->options(fn (Get $get): array => CarModel::query()
+                                    ->where('brand_id', $get('brand_id'))
+                                    ->where('is_active', true)
+                                    ->orderBy('sort_order')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all())
+                                ->searchable()
+                                ->preload()
+                                ->disabled(fn (Get $get): bool => blank($get('brand_id')))
+                                ->createOptionForm([
+                                    TextInput::make('name')
+                                        ->label('Nome')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug((string) $state))),
+                                    TextInput::make('slug')
+                                        ->required()
+                                        ->maxLength(255),
+                                    TextInput::make('sort_order')
+                                        ->label('Ordem')
+                                        ->numeric()
+                                        ->default(0),
+                                    Toggle::make('is_active')
+                                        ->label('Ativo')
+                                        ->default(true),
+                                ])
+                                ->createOptionUsing(function (array $data, Get $get): int {
+                                    return CarModel::query()->create([
+                                        'brand_id' => $get('brand_id'),
+                                        'name' => $data['name'],
+                                        'slug' => self::uniqueCarModelSlug((int) $get('brand_id'), $data['slug']),
+                                        'sort_order' => $data['sort_order'] ?? 0,
+                                        'is_active' => $data['is_active'] ?? true,
+                                    ])->getKey();
+                                }),
                             TextInput::make('version')->label('Versão'),
                             TextInput::make('year')->numeric()->minValue(1900)->maxValue((int) date('Y') + 1),
                             DatePicker::make('first_registration_date')->label('Primeira matrícula'),
@@ -148,5 +217,22 @@ class VehicleForm
                     ]),
                 ])->columnSpanFull(),
             ]);
+    }
+
+    private static function uniqueCarModelSlug(int $brandId, string $slug): string
+    {
+        $slug = Str::slug($slug);
+        $baseSlug = $slug;
+        $counter = 2;
+
+        while (CarModel::query()
+            ->where('brand_id', $brandId)
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = "{$baseSlug}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
     }
 }

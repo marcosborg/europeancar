@@ -64,6 +64,44 @@ return [
             ]) : [],
         ],
 
+        'system_tools_production' => [
+            'driver' => 'mysql',
+            'host' => env('SYSTEM_TOOLS_PRODUCTION_DB_HOST'),
+            'port' => env('SYSTEM_TOOLS_PRODUCTION_DB_PORT', '3306'),
+            'database' => env('SYSTEM_TOOLS_PRODUCTION_DB_DATABASE'),
+            'username' => env('SYSTEM_TOOLS_PRODUCTION_DB_USERNAME'),
+            'password' => env('SYSTEM_TOOLS_PRODUCTION_DB_PASSWORD'),
+            'unix_socket' => env('SYSTEM_TOOLS_PRODUCTION_DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('SYSTEM_TOOLS_PRODUCTION_MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
+        'system_tools_sandbox' => [
+            'driver' => 'mysql',
+            'host' => env('SYSTEM_TOOLS_SANDBOX_DB_HOST', '127.0.0.1'),
+            'port' => env('SYSTEM_TOOLS_SANDBOX_DB_PORT', '3306'),
+            'database' => env('SYSTEM_TOOLS_SANDBOX_DB_DATABASE'),
+            'username' => env('SYSTEM_TOOLS_SANDBOX_DB_USERNAME', 'root'),
+            'password' => env('SYSTEM_TOOLS_SANDBOX_DB_PASSWORD', ''),
+            'unix_socket' => env('SYSTEM_TOOLS_SANDBOX_DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('SYSTEM_TOOLS_SANDBOX_MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
