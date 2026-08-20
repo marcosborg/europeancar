@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\SystemToolRun;
 use App\Services\SystemTools\DatabaseSyncService;
 use App\Services\SystemTools\EnvironmentSwitcher;
+use App\Services\SystemTools\ProductionOlxDeploymentService;
 use App\Services\SystemTools\SystemToolRunner;
 use BackedEnum;
 use Filament\Facades\Filament;
@@ -107,6 +108,25 @@ class SystemTools extends Page
         $run->refresh();
 
         $this->notifyFromRun($run, 'Database sync completed.');
+    }
+
+    public function deployOlxVehicles(): void
+    {
+        abort_unless(static::canAccess(), 403);
+
+        try {
+            $run = app(ProductionOlxDeploymentService::class)->run(auth()->id());
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->danger()
+                ->title('Publicação bloqueada')
+                ->body($exception->getMessage())
+                ->send();
+
+            return;
+        }
+
+        $this->notifyFromRun($run, 'Site e viaturas publicados com sucesso.');
     }
 
     public function recentRuns(): Collection

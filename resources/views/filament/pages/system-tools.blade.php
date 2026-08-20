@@ -243,6 +243,65 @@
                     </div>
                 </div>
             </x-filament::section>
+
+            <x-filament::section
+                heading="Publicação European Car"
+                description="Atualiza a base de dados e publica as quatro viaturas OLX com as respetivas imagens."
+            >
+                <div x-data="{ open: false }">
+                    <x-filament::button
+                        type="button"
+                        color="danger"
+                        :disabled="$this->environmentLabel() !== 'PRODUCTION'"
+                        x-on:click="open = true"
+                    >
+                        Publicar atualização OLX
+                    </x-filament::button>
+
+                    <p style="margin: .75rem 0 0; color: #6b7280; font-size: .875rem;">
+                        Disponível apenas em produção e executável uma única vez.
+                    </p>
+
+                    <div
+                        x-cloak
+                        x-show="open"
+                        x-transition.opacity
+                        style="position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: rgb(15 23 42 / .55); padding: 1rem;"
+                    >
+                        <div
+                            x-on:click.outside="open = false"
+                            style="width: min(100%, 32rem); border-radius: .75rem; background: white; color: #111827; box-shadow: 0 24px 80px rgb(15 23 42 / .35);"
+                        >
+                            <div style="padding: 1.25rem;">
+                                <h2 style="margin: 0; font-size: 1rem; font-weight: 700;">Publicar atualização em produção?</h2>
+                                <p style="margin: .5rem 0 0; color: #6b7280; font-size: .875rem;">
+                                    Serão executadas as migrações, criado o link de storage, importadas quatro viaturas com 37 imagens e limpas as caches.
+                                </p>
+                            </div>
+
+                            <div style="display: flex; justify-content: flex-end; gap: .75rem; border-top: 1px solid #e5e7eb; padding: 1rem 1.25rem;">
+                                <button
+                                    type="button"
+                                    x-on:click="open = false"
+                                    style="border: 1px solid #d1d5db; border-radius: .5rem; padding: .625rem .875rem; color: #374151; font-weight: 600;"
+                                >
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    x-on:click="open = false; $wire.deployOlxVehicles()"
+                                    wire:loading.attr="disabled"
+                                    wire:target="deployOlxVehicles"
+                                    style="border-radius: .5rem; padding: .625rem .875rem; background: #dc2626; color: white; font-weight: 700;"
+                                >
+                                    Confirmar publicação
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </x-filament::section>
         </div>
 
         <x-filament::section heading="Execution Log">
