@@ -107,7 +107,8 @@
 @endif
 
 <x-front.layouts.app :locale="$locale" :title="$translation->meta_title ?: $translation->title" :description="$translation->meta_description" :image="$vehicle->mainImageUrl()">
-    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-[1.2fr_.8fr]">
+    <div class="border-b border-slate-100 bg-brand-light"><div class="mx-auto max-w-7xl px-4 py-4 text-xs font-semibold text-slate-500 sm:px-6 lg:px-8"><a class="hover:text-brand-navy" href="{{ $locale === 'en' ? route('vehicles.buy.en', ['locale' => 'en']) : route('vehicles.buy.pt', ['locale' => 'pt']) }}">{{ $locale === 'en' ? 'Vehicles' : 'Viaturas' }}</a><span class="mx-2">/</span><span class="text-brand-navy">{{ $vehicle->brand?->name }} {{ $vehicle->carModel?->name }}</span></div></div>
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.2fr_.8fr] lg:px-8 lg:py-14">
         <div class="vehicle-gallery">
             <div>
                 @if($galleryMedia->isNotEmpty())
@@ -142,31 +143,41 @@
                 @endif
             </div>
         </div>
-        <aside class="self-start rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-sm font-bold uppercase tracking-wide text-[#F7B500]">{{ $vehicle->brand?->name }} {{ $vehicle->carModel?->name }}</p>
-            <h1 class="mt-2 text-3xl font-black text-[#002B6B]">{{ $translation->title }}</h1>
-            <p class="mt-3 text-[#555555]">{{ $vehicle->year }} · {{ number_format((int) $vehicle->mileage, 0, ',', ' ') }} km · {{ $vehicle->fuel_type }} · {{ $vehicle->transmission }}</p>
-            <div class="mt-6 text-3xl font-black text-[#002B6B]">{{ $vehicle->price_on_request ? ($locale === 'en' ? 'Price on request' : 'Preço sob consulta') : number_format((float) $vehicle->sale_price, 0, ',', ' ').'€' }}</div>
-            <div class="mt-6 grid gap-3">
-                <a class="rounded-lg bg-[#002B6B] px-5 py-3 text-center font-bold text-white" href="#contact">{{ $locale === 'en' ? 'Request contact' : 'Pedir contacto' }}</a>
-                <a class="rounded-lg bg-[#F7B500] px-5 py-3 text-center font-bold text-[#001E4A]" href="#financing">{{ $locale === 'en' ? 'Financing request' : 'Pedido de financiamento' }}</a>
+        <aside class="self-start rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_24px_70px_-35px_rgba(0,30,74,0.45)] lg:sticky lg:top-36">
+            <div class="flex items-center justify-between gap-3"><p class="text-xs font-extrabold uppercase tracking-[0.2em] text-brand-navy/60">{{ $vehicle->brand?->name }} · {{ $vehicle->carModel?->name }}</p><span class="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700">{{ $locale === 'en' ? 'Available' : 'Disponível' }}</span></div>
+            <h1 class="mt-4 text-3xl font-black leading-tight tracking-tight text-brand-deep sm:text-4xl">{{ $translation->title }}</h1>
+            <div class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-slate-200 text-sm"><div class="bg-brand-light p-4"><span class="block text-xs text-slate-500">{{ $locale === 'en' ? 'Year' : 'Ano' }}</span><strong class="mt-1 block text-brand-navy">{{ $vehicle->year }}</strong></div><div class="bg-brand-light p-4"><span class="block text-xs text-slate-500">{{ $locale === 'en' ? 'Mileage' : 'Quilómetros' }}</span><strong class="mt-1 block text-brand-navy">{{ number_format((int) $vehicle->mileage, 0, ',', ' ') }} km</strong></div><div class="bg-brand-light p-4"><span class="block text-xs text-slate-500">{{ $locale === 'en' ? 'Fuel' : 'Combustível' }}</span><strong class="mt-1 block text-brand-navy">{{ $vehicle->fuel_type }}</strong></div><div class="bg-brand-light p-4"><span class="block text-xs text-slate-500">{{ $locale === 'en' ? 'Gearbox' : 'Caixa' }}</span><strong class="mt-1 block text-brand-navy">{{ $vehicle->transmission }}</strong></div></div>
+            <div class="mt-7 border-t border-slate-100 pt-6"><span class="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">{{ $locale === 'en' ? 'Sale price' : 'Preço de venda' }}</span><div class="mt-1 text-4xl font-black text-brand-navy">{{ $vehicle->price_on_request ? ($locale === 'en' ? 'On request' : 'Sob consulta') : number_format((float) $vehicle->sale_price, 0, ',', ' ').' €' }}</div></div>
+            <div class="mt-7 grid gap-3">
+                <a class="rounded-full bg-brand-navy px-5 py-4 text-center font-extrabold text-white transition hover:bg-brand-deep" href="#contact">{{ $locale === 'en' ? 'Request contact' : 'Pedir contacto' }}</a>
+                <a class="rounded-full bg-brand-gold px-5 py-4 text-center font-extrabold text-brand-deep transition hover:bg-amber-400" href="#financing">{{ $locale === 'en' ? 'Financing request' : 'Pedido de financiamento' }}</a>
             </div>
         </aside>
     </section>
-    <section class="mx-auto grid max-w-7xl gap-10 px-4 pb-16 lg:grid-cols-[1fr_.8fr]">
-        <div class="prose max-w-none">{!! $translation->description !!}</div>
-        <div class="rounded-2xl bg-[#F5F7FA] p-6">
-            <h2 class="text-xl font-black text-[#002B6B]">{{ $locale === 'en' ? 'Technical data' : 'Dados técnicos' }}</h2>
-            <dl class="mt-5 grid grid-cols-2 gap-4 text-sm">
-                @foreach(['body_type','fuel_type','transmission','power_hp','doors','seats','origin_country','warranty_months'] as $field)
-                    <div><dt class="text-[#555555]">{{ str_replace('_', ' ', $field) }}</dt><dd class="font-bold text-[#002B6B]">{{ $vehicle->{$field} }}</dd></div>
+    <section class="mx-auto grid max-w-7xl gap-10 px-4 pb-20 sm:px-6 lg:grid-cols-[1fr_.8fr] lg:px-8">
+        <div><p class="text-xs font-extrabold uppercase tracking-[0.2em] text-brand-navy/60">{{ $locale === 'en' ? 'About this vehicle' : 'Sobre esta viatura' }}</p><h2 class="mt-3 text-3xl font-black text-brand-deep">{{ $locale === 'en' ? 'Description' : 'Descrição' }}</h2><div class="prose prose-slate mt-6 max-w-none leading-7">{!! $translation->description !!}</div></div>
+        <div class="rounded-3xl bg-brand-light p-7">
+            <h2 class="text-2xl font-black text-brand-deep">{{ $locale === 'en' ? 'Technical data' : 'Dados técnicos' }}</h2>
+            @php($technicalFields = [
+                'body_type' => [$locale === 'en' ? 'Body type' : 'Carroçaria', null],
+                'fuel_type' => [$locale === 'en' ? 'Fuel' : 'Combustível', null],
+                'transmission' => [$locale === 'en' ? 'Gearbox' : 'Caixa', null],
+                'power_hp' => [$locale === 'en' ? 'Power' : 'Potência', ' cv'],
+                'doors' => [$locale === 'en' ? 'Doors' : 'Portas', null],
+                'seats' => [$locale === 'en' ? 'Seats' : 'Lugares', null],
+                'origin_country' => [$locale === 'en' ? 'Origin' : 'Origem', null],
+                'warranty_months' => [$locale === 'en' ? 'Warranty' : 'Garantia', $locale === 'en' ? ' months' : ' meses'],
+            ])
+            <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 text-sm">
+                @foreach($technicalFields as $field => [$label, $suffix])
+                    @if(filled($vehicle->{$field}))<div class="border-b border-slate-200 pb-3"><dt class="text-slate-500">{{ $label }}</dt><dd class="mt-1 font-extrabold text-brand-navy">{{ $vehicle->{$field} }}{{ $suffix }}</dd></div>@endif
                 @endforeach
             </dl>
         </div>
     </section>
     <section class="mx-auto grid max-w-7xl gap-10 px-4 pb-16 lg:grid-cols-2">
-        <div id="contact" class="rounded-2xl bg-[#002B6B] p-8 text-white"><h2 class="text-2xl font-black">{{ $locale === 'en' ? 'Contact us' : 'Contacte-nos' }}</h2><livewire:contact-form :locale="$locale" :vehicle-id="$vehicle->id" /></div>
-        <div id="financing" class="rounded-2xl bg-[#F5F7FA] p-8"><h2 class="text-2xl font-black text-[#002B6B]">{{ $locale === 'en' ? 'Financing' : 'Financiamento' }}</h2><livewire:financing-form :locale="$locale" :vehicle-id="$vehicle->id" /></div>
+        <div id="contact" class="scroll-mt-40 rounded-3xl bg-brand-navy p-6 text-white shadow-[0_24px_70px_-35px_rgba(0,30,74,0.6)] sm:p-8"><p class="text-xs font-bold uppercase tracking-[0.2em] text-brand-gold">{{ $locale === 'en' ? 'Dedicated support' : 'Apoio dedicado' }}</p><h2 class="mt-2 text-3xl font-black">{{ $locale === 'en' ? 'Contact us' : 'Contacte-nos' }}</h2><livewire:contact-form :locale="$locale" :vehicle-id="$vehicle->id" /></div>
+        <div id="financing" class="scroll-mt-40 rounded-3xl border border-slate-200 bg-brand-light p-6 sm:p-8"><p class="text-xs font-bold uppercase tracking-[0.2em] text-brand-navy/60">{{ $locale === 'en' ? 'Tailored solution' : 'Solução personalizada' }}</p><h2 class="mt-2 text-3xl font-black text-brand-deep">{{ $locale === 'en' ? 'Financing' : 'Financiamento' }}</h2><livewire:financing-form :locale="$locale" :vehicle-id="$vehicle->id" /></div>
     </section>
     @if($similarVehicles->isNotEmpty())
         <section class="mx-auto max-w-7xl px-4 pb-16"><h2 class="mb-6 text-2xl font-black text-[#002B6B]">{{ $locale === 'en' ? 'Similar vehicles' : 'Viaturas semelhantes' }}</h2><div class="grid gap-6 md:grid-cols-3">@foreach($similarVehicles as $similar)<x-vehicle-card :vehicle="$similar" :locale="$locale" />@endforeach</div></section>

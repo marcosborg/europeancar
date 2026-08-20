@@ -13,12 +13,50 @@
     --color-brand-gold: #F7B500;
     --color-brand-gray: #555555;
     --color-brand-light: #F5F7FA;
+    --shadow-premium: 0 24px 70px -30px rgba(0, 30, 74, 0.35);
 }
 
 @layer base {
-    input,
+    [x-cloak] {
+        display: none !important;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background: #ffffff;
+        color: #172033;
+    }
+
+    ::selection {
+        background: #f7b500;
+        color: #001e4a;
+    }
+
+    input:not([type='checkbox']):not([type='radio']),
     select,
     textarea {
         width: 100%;
+    }
+
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :focus-visible {
+        outline: 3px solid rgb(247 181 0 / 45%);
+        outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\Lead;
 use Database\Seeders\DatabaseSeeder;
+use Livewire\Livewire;
 
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
@@ -19,6 +20,21 @@ test('contact endpoint component persistence can create a lead', function () {
     ]);
 
     expect(Lead::query()->where('type', 'contact')->where('email', 'cliente@example.com')->exists())->toBeTrue();
+});
+
+test('contact form can update and submit through livewire', function (): void {
+    Livewire::test('contact-form', ['locale' => 'pt'])
+        ->set('name', 'Cliente Livewire')
+        ->set('email', 'livewire@example.com')
+        ->set('phone', '+351900000000')
+        ->set('subject', 'Pedido de contacto')
+        ->set('message', 'Gostaria de receber mais informações.')
+        ->set('consent', true)
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertSet('sent', true);
+
+    expect(Lead::query()->where('email', 'livewire@example.com')->exists())->toBeTrue();
 });
 
 test('financing request can be stored as lead', function () {

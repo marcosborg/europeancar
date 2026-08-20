@@ -68,24 +68,24 @@ new class extends Component
 };
 ?>
 
-<section class="{{ $compact ? 'pt-4' : 'mx-auto max-w-7xl px-4 py-12' }}">
-    <div class="{{ $compact ? 'grid gap-3' : 'mb-8 grid gap-4 rounded-2xl bg-[#F5F7FA] p-5 md:grid-cols-6' }}">
-        <select wire:model.live="brand" class="rounded-lg border-slate-200">
+<section class="{{ $compact ? 'pt-5' : 'mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8' }}">
+    <div class="{{ $compact ? 'grid gap-3' : 'relative z-10 mb-10 -mt-24 grid gap-3 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_24px_70px_-30px_rgba(0,30,74,0.4)] sm:p-6 md:grid-cols-2 lg:grid-cols-6' }}">
+        <select wire:model.live="brand" aria-label="{{ $locale === 'en' ? 'Brand' : 'Marca' }}" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy outline-none transition focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20">
             <option value="">{{ $locale === 'en' ? 'Brand' : 'Marca' }}</option>
             @foreach($brands as $brandOption)<option value="{{ $brandOption->id }}">{{ $brandOption->name }}</option>@endforeach
         </select>
-        <select wire:model.live="fuel" class="rounded-lg border-slate-200"><option value="">Fuel</option><option>Gasolina</option><option>Diesel</option><option>Híbrido</option><option>Elétrico</option></select>
-        <select wire:model.live="transmission" class="rounded-lg border-slate-200"><option value="">{{ $locale === 'en' ? 'Gearbox' : 'Caixa' }}</option><option>Manual</option><option>Automática</option></select>
-        <input wire:model.live="minPrice" type="number" placeholder="Min €" class="rounded-lg border-slate-200">
-        <input wire:model.live="maxPrice" type="number" placeholder="Max €" class="rounded-lg border-slate-200">
-        <select wire:model.live="sort" class="rounded-lg border-slate-200"><option value="recent">{{ $locale === 'en' ? 'Newest' : 'Mais recente' }}</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option><option value="km_asc">Km ↑</option><option value="year_desc">Ano ↓</option><option value="power_desc">Potência ↓</option></select>
+        <select wire:model.live="fuel" aria-label="{{ $locale === 'en' ? 'Fuel' : 'Combustível' }}" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy outline-none focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20"><option value="">{{ $locale === 'en' ? 'Fuel' : 'Combustível' }}</option><option>Gasolina</option><option>Diesel</option><option>Híbrido</option><option>Elétrico</option></select>
+        <select wire:model.live="transmission" aria-label="{{ $locale === 'en' ? 'Gearbox' : 'Caixa' }}" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy outline-none focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20"><option value="">{{ $locale === 'en' ? 'Gearbox' : 'Caixa' }}</option><option>Manual</option><option>Automática</option></select>
+        <input wire:model.live="minPrice" type="number" aria-label="{{ $locale === 'en' ? 'Minimum price' : 'Preço mínimo' }}" placeholder="{{ $locale === 'en' ? 'Min price' : 'Preço mín.' }}" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy placeholder:text-slate-400 focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20">
+        <input wire:model.live="maxPrice" type="number" aria-label="{{ $locale === 'en' ? 'Maximum price' : 'Preço máximo' }}" placeholder="{{ $locale === 'en' ? 'Max price' : 'Preço máx.' }}" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy placeholder:text-slate-400 focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20">
+        <select wire:model.live="sort" aria-label="{{ $locale === 'en' ? 'Sort' : 'Ordenar' }}" class="rounded-xl border border-slate-200 bg-brand-light px-4 py-3 text-sm font-bold text-brand-navy outline-none focus:border-brand-gold focus:ring-3 focus:ring-brand-gold/20"><option value="recent">{{ $locale === 'en' ? 'Newest' : 'Mais recente' }}</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option><option value="km_asc">Km ↑</option><option value="year_desc">Ano ↓</option><option value="power_desc">Potência ↓</option></select>
     </div>
 
-    <div class="{{ $compact ? 'grid gap-4' : 'grid gap-6 md:grid-cols-2 lg:grid-cols-3' }}">
+    <div class="{{ $compact ? 'grid gap-4' : 'grid gap-7 md:grid-cols-2 lg:grid-cols-3' }}">
         @forelse($vehicles as $vehicle)
             <x-vehicle-card :vehicle="$vehicle" :locale="$locale" />
         @empty
-            <div class="rounded-xl bg-white p-8 text-[#555555]">{{ $locale === 'en' ? 'No vehicles found.' : 'Nenhuma viatura encontrada.' }}</div>
+            <div class="col-span-full rounded-3xl border border-dashed border-slate-300 bg-brand-light p-12 text-center text-slate-600">{{ $locale === 'en' ? 'No vehicles match these filters.' : 'Nenhuma viatura corresponde a estes filtros.' }}</div>
         @endforelse
     </div>
 

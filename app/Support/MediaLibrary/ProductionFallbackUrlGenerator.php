@@ -21,7 +21,7 @@ class ProductionFallbackUrlGenerator extends DefaultUrlGenerator
             return $url;
         }
 
-        return $this->fallbackUrl($url) ?? $url;
+        return $this->fallbackUrl() ?? $url;
     }
 
     private function localFileExists(): bool
@@ -55,14 +55,17 @@ class ProductionFallbackUrlGenerator extends DefaultUrlGenerator
         return rtrim($baseUrl, '/').$path;
     }
 
-    private function fallbackUrl(string $url): ?string
+    private function fallbackUrl(): ?string
     {
         $baseUrl = rtrim((string) config('media-library.fallback_url'), '/');
 
-        if ($baseUrl === '' || $this->media === null || ! Str::startsWith($this->media->mime_type, 'image/')) {
+        if (app()->isProduction()
+            || $baseUrl === ''
+            || $this->media === null
+            || ! Str::startsWith($this->media->mime_type, 'image/')) {
             return null;
         }
 
-        return $this->mediaControllerUrl($baseUrl);
+        return $this->mediaControllerUrl();
     }
 }

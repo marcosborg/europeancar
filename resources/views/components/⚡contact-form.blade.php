@@ -44,13 +44,57 @@ new class extends Component
 };
 ?>
 
-<form wire:submit="submit" class="mt-5 grid gap-4">
-    @if($sent)<div class="rounded-lg bg-green-100 p-3 text-green-800">{{ $locale === 'en' ? 'Request sent.' : 'Pedido enviado.' }}</div>@endif
-    <input wire:model="name" class="rounded-lg border-slate-200 text-[#1f2937]" placeholder="{{ $locale === 'en' ? 'Name' : 'Nome' }}">
-    <input wire:model="email" class="rounded-lg border-slate-200 text-[#1f2937]" placeholder="Email">
-    <input wire:model="phone" class="rounded-lg border-slate-200 text-[#1f2937]" placeholder="{{ $locale === 'en' ? 'Phone' : 'Telefone' }}">
-    <input wire:model="subject" class="rounded-lg border-slate-200 text-[#1f2937]" placeholder="{{ $locale === 'en' ? 'Subject' : 'Assunto' }}">
-    <textarea wire:model="message" class="rounded-lg border-slate-200 text-[#1f2937]" rows="4" placeholder="{{ $locale === 'en' ? 'Message' : 'Mensagem' }}"></textarea>
-    <label class="flex gap-2 text-sm"><input wire:model="consent" type="checkbox"> <span>{{ $locale === 'en' ? 'I consent to data processing.' : 'Autorizo o tratamento dos dados.' }}</span></label>
-    <button class="rounded-lg bg-[#F7B500] px-5 py-3 font-bold text-[#001E4A]">{{ $locale === 'en' ? 'Send' : 'Enviar' }}</button>
+<div>
+<form wire:submit="submit" class="mt-6 grid gap-5">
+    @if($sent)
+        <div class="rounded-lg bg-emerald-100 px-4 py-3 font-medium text-emerald-900" role="status">
+            {{ $locale === 'en' ? 'Request sent.' : 'Pedido enviado.' }}
+        </div>
+    @endif
+
+    <div class="grid gap-5 sm:grid-cols-2">
+        <div class="grid gap-2">
+            <label for="contact-name" class="text-sm font-semibold text-white">{{ $locale === 'en' ? 'Name' : 'Nome' }} *</label>
+            <input id="contact-name" wire:model="name" autocomplete="name" class="rounded-lg border border-white/30 bg-white px-4 py-3 text-brand-deep placeholder:text-slate-400 focus:border-brand-gold focus:outline-none focus:ring-3 focus:ring-brand-gold/30" placeholder="{{ $locale === 'en' ? 'Your name' : 'O seu nome' }}">
+            @error('name') <p class="text-sm text-amber-200">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid gap-2">
+            <label for="contact-email" class="text-sm font-semibold text-white">Email *</label>
+            <input id="contact-email" wire:model="email" type="email" autocomplete="email" class="rounded-lg border border-white/30 bg-white px-4 py-3 text-brand-deep placeholder:text-slate-400 focus:border-brand-gold focus:outline-none focus:ring-3 focus:ring-brand-gold/30" placeholder="nome@exemplo.pt">
+            @error('email') <p class="text-sm text-amber-200">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid gap-2">
+            <label for="contact-phone" class="text-sm font-semibold text-white">{{ $locale === 'en' ? 'Phone' : 'Telefone' }}</label>
+            <input id="contact-phone" wire:model="phone" type="tel" autocomplete="tel" class="rounded-lg border border-white/30 bg-white px-4 py-3 text-brand-deep placeholder:text-slate-400 focus:border-brand-gold focus:outline-none focus:ring-3 focus:ring-brand-gold/30" placeholder="+351 900 000 000">
+            @error('phone') <p class="text-sm text-amber-200">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid gap-2">
+            <label for="contact-subject" class="text-sm font-semibold text-white">{{ $locale === 'en' ? 'Subject' : 'Assunto' }}</label>
+            <input id="contact-subject" wire:model="subject" class="rounded-lg border border-white/30 bg-white px-4 py-3 text-brand-deep placeholder:text-slate-400 focus:border-brand-gold focus:outline-none focus:ring-3 focus:ring-brand-gold/30" placeholder="{{ $locale === 'en' ? 'How can we help?' : 'Como podemos ajudar?' }}">
+            @error('subject') <p class="text-sm text-amber-200">{{ $message }}</p> @enderror
+        </div>
+    </div>
+
+    <div class="grid gap-2">
+        <label for="contact-message" class="text-sm font-semibold text-white">{{ $locale === 'en' ? 'Message' : 'Mensagem' }}</label>
+        <textarea id="contact-message" wire:model="message" class="min-h-32 resize-y rounded-lg border border-white/30 bg-white px-4 py-3 text-brand-deep placeholder:text-slate-400 focus:border-brand-gold focus:outline-none focus:ring-3 focus:ring-brand-gold/30" rows="4" placeholder="{{ $locale === 'en' ? 'Tell us what you are looking for.' : 'Diga-nos o que procura.' }}"></textarea>
+        @error('message') <p class="text-sm text-amber-200">{{ $message }}</p> @enderror
+    </div>
+
+    <div>
+        <label for="contact-consent" class="flex cursor-pointer items-start gap-3 rounded-lg border border-white/15 bg-white/5 p-4 text-sm leading-6 text-slate-100">
+            <input id="contact-consent" wire:model="consent" type="checkbox" class="mt-0.5 size-5 shrink-0 cursor-pointer rounded border-white/50 bg-white text-brand-gold accent-brand-gold focus:ring-2 focus:ring-brand-gold focus:ring-offset-2 focus:ring-offset-brand-navy">
+            <span>{{ $locale === 'en' ? 'I consent to the processing of my data so that I can be contacted.' : 'Autorizo o tratamento dos meus dados para poder ser contactado.' }}</span>
+        </label>
+        @error('consent') <p class="mt-2 text-sm text-amber-200">{{ $message }}</p> @enderror
+    </div>
+
+    <button type="submit" wire:loading.attr="disabled" class="rounded-lg bg-brand-gold px-5 py-3.5 font-bold text-brand-deep transition hover:bg-amber-400 focus:outline-none focus:ring-3 focus:ring-white/50 disabled:cursor-wait disabled:opacity-70">
+        <span wire:loading.remove>{{ $locale === 'en' ? 'Send request' : 'Enviar pedido' }}</span>
+        <span wire:loading>{{ $locale === 'en' ? 'Sending…' : 'A enviar…' }}</span>
+    </button>
 </form>
+</div>
