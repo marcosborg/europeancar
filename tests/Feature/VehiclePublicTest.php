@@ -29,3 +29,24 @@ test('locale home routes work', function () {
     $this->get('/pt')->assertSuccessful()->assertSee('European Car Sales and Rentals');
     $this->get('/en')->assertSuccessful()->assertSee('European Car Sales and Rentals');
 });
+
+test('home selection is completed with recent published vehicles', function () {
+    $featuredVehicle = Vehicle::query()->firstOrFail();
+    $recentVehicle = $featuredVehicle->replicate();
+    $recentVehicle->forceFill([
+        'sku' => 'RECENT-HOMEPAGE',
+        'featured' => false,
+        'published_at' => now(),
+    ])->save();
+
+    $recentVehicle->translations()->create([
+        'locale' => 'pt',
+        'title' => 'Viatura recente na homepage',
+        'slug' => 'viatura-recente-na-homepage',
+    ]);
+
+    $this->get('/pt')
+        ->assertSuccessful()
+        ->assertSee($featuredVehicle->publicTitle('pt'))
+        ->assertSee('Viatura recente na homepage');
+});

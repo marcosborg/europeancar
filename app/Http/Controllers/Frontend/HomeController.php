@@ -21,9 +21,10 @@ class HomeController extends Controller
         $featuredVehicles = Vehicle::query()
             ->with(['brand', 'carModel', 'translations', 'media'])
             ->published()
-            ->where('featured', true)
+            ->orderByDesc('featured')
             ->orderBy('featured_order')
-            ->latest()
+            ->latest('published_at')
+            ->latest('id')
             ->limit(6)
             ->get();
 
