@@ -32,6 +32,11 @@ class SiteSetting extends Model implements HasMedia
         $this->addMediaCollection('site_default_seo')->useDisk('public')->singleFile();
     }
 
+    public function siteLogoUrl(): string
+    {
+        return $this->getFirstMediaUrl('site_logo') ?: asset('assets/img/logo.png');
+    }
+
     public static function current(): self
     {
         return self::query()->firstOrCreate([], [

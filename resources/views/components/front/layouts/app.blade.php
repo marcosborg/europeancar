@@ -5,7 +5,6 @@
     'image' => null,
 ])
 @php
-    $settings = \App\Models\SiteSetting::current();
     $siteTitle = $settings->site_name;
     $metaTitle = $title ? $title.' | '.$siteTitle : $siteTitle.' | '.$settings->slogan;
     $metaDescription = $description ?: ($settings->seo_defaults[$locale] ?? $settings->slogan);
@@ -40,7 +39,7 @@
         </div>
         <div class="mx-auto flex h-24 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
             <a href="{{ url('/'.$locale) }}" class="shrink-0" aria-label="{{ $siteTitle }}">
-                <img src="{{ asset('assets/img/logo.png') }}" class="h-auto w-48 sm:w-56" alt="{{ $siteTitle }}">
+                <img src="{{ $siteLogoUrl }}" class="h-auto w-48 sm:w-56" alt="{{ $siteTitle }}">
             </a>
             <nav class="hidden items-center gap-1 lg:flex" aria-label="{{ $locale === 'en' ? 'Main navigation' : 'Navegação principal' }}">
                 @foreach([
@@ -80,7 +79,7 @@
         <div class="absolute -right-32 -top-32 size-96 rounded-full border border-white/5"></div>
         <div class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-4 lg:px-8">
             <div class="md:col-span-2">
-                <img src="{{ asset('assets/img/logo.png') }}" class="w-56 rounded-xl bg-white p-3" alt="{{ $siteTitle }}">
+                <img src="{{ $siteLogoUrl }}" class="w-56 rounded-xl bg-white p-3" alt="{{ $siteTitle }}">
                 <p class="mt-5 max-w-xl text-sm leading-7 text-slate-300">{{ $settings->footer_text[$locale] ?? $settings->slogan }}</p>
             </div>
             <div class="text-sm leading-7 text-slate-300">
