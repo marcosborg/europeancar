@@ -38,8 +38,8 @@
             </div>
         </div>
         <div class="mx-auto flex h-24 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-            <a href="{{ url('/'.$locale) }}" class="shrink-0" aria-label="{{ $siteTitle }}">
-                <img src="{{ $siteLogoUrl }}" class="h-auto w-48 sm:w-56" alt="{{ $siteTitle }}">
+            <a href="{{ url('/'.$locale) }}" class="flex h-20 w-48 shrink-0 items-center sm:w-56" aria-label="{{ $siteTitle }}">
+                <img src="{{ $siteLogoUrl }}" class="h-full w-full object-contain" alt="{{ $siteTitle }}">
             </a>
             <nav class="hidden items-center gap-1 lg:flex" aria-label="{{ $locale === 'en' ? 'Main navigation' : 'Navegação principal' }}">
                 @foreach([
